@@ -387,7 +387,7 @@ class _NeighborhoodSorter:
         if mode=='phase1':
             print ('Computing templates for channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
             templates=compute_templates_from_timeseries_model(X,times,labels,nbhd_channels=nbhd_channels,clip_size=clip_size,chunk_infos=chunk_infos)
-            mdaio.writemda32(templates,'tmp-templates-{}.mda'.format(m_central+1))
+            #mdaio.writemda32(templates,'tmp-templates-{}.mda'.format(m_central+1))
 
             print ('Re-assigning events for channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
             tc_peaks, tc_peak_times=compute_template_channel_peaks(templates,detect_sign=detect_sign) # M x K
