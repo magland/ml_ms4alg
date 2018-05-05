@@ -5,7 +5,7 @@ import os
 import numpy as np
 
 processor_name='ms4alg.sort'
-processor_version='0.1'
+processor_version='0.11'
 
 def sort(*,
         timeseries,geom='',

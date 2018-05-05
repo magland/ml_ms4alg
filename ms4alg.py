@@ -259,9 +259,9 @@ def compute_event_features_from_timeseries_model(X,times,*,nbhd_channels,clip_si
 def compute_templates_from_timeseries_model(X,times,labels,*,nbhd_channels,clip_size,chunk_infos):
     # TODO: subsample smartly here
     padding=clip_size*10
-    M=X.numChannels()
+    M0=len(nbhd_channels)
     K=np.max(labels)
-    template_sums=np.zeros((M,clip_size,K),dtype='float64')
+    template_sums=np.zeros((M0,clip_size,K),dtype='float64')
     template_counts=np.zeros(K,dtype='float64')
     for ii in range(len(chunk_infos)):
         chunk0=chunk_infos[ii]
@@ -275,9 +275,9 @@ def compute_templates_from_timeseries_model(X,times,labels,*,nbhd_channels,clip_
             inds_k=np.where(labels0==(k+1))[0]
             if len(inds_k)>0:
                 template_counts[k]+=len(inds_k)
-                template_sums[:,:,k]+=np.sum(clips0[:,:,inds_k],axis=2).reshape((M,clip_size))
+                template_sums[:,:,k]+=np.sum(clips0[:,:,inds_k],axis=2).reshape((M0,clip_size))
 
-    templates=np.zeros((M,clip_size,K))
+    templates=np.zeros((M0,clip_size,K))
     for k in range(K):
         if template_counts[k]:
             templates[:,:,k]=template_sums[:,:,k]/template_counts[k]
@@ -390,7 +390,7 @@ class _NeighborhoodSorter:
             #mdaio.writemda32(templates,'tmp-templates-{}.mda'.format(m_central+1))
 
             print ('Re-assigning events for channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
-            tc_peaks, tc_peak_times=compute_template_channel_peaks(templates,detect_sign=detect_sign) # M x K
+            tc_peaks, tc_peak_times=compute_template_channel_peaks(templates,detect_sign=detect_sign) # M_neigh x K
             peak_channels=np.argmax(tc_peaks,axis=0) # The channels on which the peaks occur
             
             # make channel assignments and offset times
