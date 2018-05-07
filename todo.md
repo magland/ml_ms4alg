@@ -1,0 +1,1 @@
+- [ ] Build filtering and whitening into this processor (to save on temporary disk space)
