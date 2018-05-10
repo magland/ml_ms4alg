@@ -521,7 +521,7 @@ class MountainSort4:
         self._firings_out_path=None
         self._geom=None
         self._temporary_directory=None
-        self._num_workers=multiprocessing.cpu_count()
+        self._num_workers=0
     def setSortingOpts(self,clip_size=None,adjacency_radius=None,detect_sign=None,detect_interval=None,detect_threshold=None):
         if clip_size is not None:
             self._sorting_opts['clip_size']=clip_size
@@ -546,6 +546,10 @@ class MountainSort4:
     def sort(self):
         if not self._temporary_directory:
             raise Exception('Temporary directory not set.')
+
+        num_workers=self._num_workers
+        if num_workers<=0:
+            num_workers=multiprocessing.cpu_count()
 
         clip_size=self._sorting_opts['clip_size']
 
@@ -577,7 +581,7 @@ class MountainSort4:
             NS.setHdf5FilePath(fname0)
             neighborhood_sorters.append(NS)
 
-        pool = multiprocessing.Pool(self._num_workers)
+        pool = multiprocessing.Pool(num_workers)
         pool.map(run_phase1_sort, neighborhood_sorters) 
 
         #for m in range(M):
@@ -592,7 +596,7 @@ class MountainSort4:
                 if len(inds_m_m2)>0:
                     neighborhood_sorters[m2].addAssignedEventTimes(times_m[inds_m_m2])
 
-        pool = multiprocessing.Pool(self._num_workers)
+        pool = multiprocessing.Pool(num_workers)
         pool.map(run_phase2_sort, neighborhood_sorters) 
 
         #for m in range(M):
