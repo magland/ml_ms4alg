@@ -20,6 +20,14 @@ function spec() {
       {
         name:'firings_out',
         optional:false
+      },
+      {
+        name:'filt_out',
+        optional:true
+      },
+      {
+        name:'pre_out',
+        optional:true
       }
     ],
     parameters:[
@@ -102,6 +110,10 @@ function main(inputs,outputs,parameters,opts) {
   results.firings=ms4alg_sort(results.pre,inputs.geom||'',sort_params);
 
   _MLS.setResult(outputs.firings_out,results.firings);
+  if (outputs.filt_out)
+    _MLS.setResult(outputs.filt_out,results.filt);
+  if (outputs.pre_out)
+    _MLS.setResult(outputs.pre_out,results.pre);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
