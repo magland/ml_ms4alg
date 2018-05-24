@@ -137,6 +137,9 @@ def cluster(features,*,npca):
     return labels
 
 def branch_cluster(features,*,branch_depth=2,npca=10):
+    if features.size == 0:
+        return np.array([])
+
     min_size_to_try_split=20
     labels1=cluster(features,npca=npca).ravel().astype('int64')
     if np.min(labels1)<0:
@@ -212,6 +215,9 @@ def extract_clips_from_timeseries_model(X,times,*,clip_size,nbhd_channels):
 '''
 
 def compute_event_features_from_timeseries_model(X,times,*,nbhd_channels,clip_size,max_num_clips_for_pca,num_features,chunk_infos):
+    if times.size == 0:
+        return np.array([]) 
+
     N=X.numTimepoints()
     #X_neigh=X.getChunk(t1=0,t2=N,channels=nbhd_channels)
     M_neigh=len(nbhd_channels)
@@ -371,7 +377,7 @@ class _NeighborhoodSorter:
             with h5py.File(self._hdf5_path,"r") as f:
                 for ii in range(self._num_assigned_event_time_arrays):
                     list.append(np.array(f.get('assigned-event-times-{}'.format(ii))))
-            times=np.concatenate(list)
+            times=np.concatenate(list) if list else np.array([])
 
         print ('Computing PCA features for channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
         max_num_clips_for_pca=1000 # TODO: this should be a setting somewhere
@@ -381,7 +387,7 @@ class _NeighborhoodSorter:
         # The clustering
         print ('Clustering for channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
         labels=branch_cluster(features,branch_depth=2,npca=num_features)
-        K=np.max(labels)
+        K=np.max(labels) if labels.size > 0 else 0
         print ('Found {} clusters for channel {} ({})...'.format(K,m_central+1,mode)); sys.stdout.flush()
         
         if mode=='phase1':
@@ -613,7 +619,7 @@ class MountainSort4:
             all_times_list.append(neighborhood_sorters[m].getPhase2Times())
             all_labels_list.append(labels+k_offset)
             all_channels_list.append(np.ones(len(neighborhood_sorters[m].getPhase2Times()))*(m+1))
-            k_offset+=np.max(labels)
+            k_offset+=np.max(labels) if labels.size > 0 else 0
 
         all_times=np.concatenate(all_times_list)
         all_labels=np.concatenate(all_labels_list)
