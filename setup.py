@@ -28,9 +28,6 @@ setuptools.setup(
         'mountainlab_pytools',
         'h5py'
     ],
-    dependency_links=[
-        'https://github.com/tjd2002/mltools/tarball/pypi-mountainlab_pytools#egg=mountainlab_pytools-0.1.2a',
-        'https://github.com/tjd2002/isosplit5_python/tarball/pypi#egg=isosplit5-0.1.0'],
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
