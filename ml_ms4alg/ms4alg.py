@@ -1,6 +1,6 @@
 import numpy as np
 import isosplit5
-from mltools import mdaio
+from mountainlab_pytools import mdaio
 import sys
 import os
 import multiprocessing
