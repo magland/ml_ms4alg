@@ -266,7 +266,7 @@ def compute_templates_from_timeseries_model(X,times,labels,*,nbhd_channels,clip_
     # TODO: subsample smartly here
     padding=clip_size*10
     M0=len(nbhd_channels)
-    K=np.max(labels)
+    K=np.max(labels) if labels.size > 0 else 0
     template_sums=np.zeros((M0,clip_size,K),dtype='float64')
     template_counts=np.zeros(K,dtype='float64')
     for ii in range(len(chunk_infos)):
