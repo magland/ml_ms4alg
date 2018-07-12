@@ -1,5 +1,5 @@
 numpy
 git+https://github.com/pybind/pybind11
 git+https://github.com/magland/isosplit5_python.git
-git+https://github.com/magland/mountainlab_pytools.git
+mountainlab_pytools.git
 h5py
