@@ -8,7 +8,7 @@ print('found these packages:', pkgs)
 
 setuptools.setup(
     name="ml_ms4alg",
-    version="0.0.1",
+    version="0.1.0",
     author="Jeremy Magland",
     author_email="",
     description="Mountainsort v4 for MountainLab",
@@ -18,7 +18,6 @@ setuptools.setup(
     packages=pkgs,
     package_data={
         '': ['*.mp'], # Include all processor files
-        'ml_ms4alg': ['mlscripts/*']
     },
     install_requires=
     [
