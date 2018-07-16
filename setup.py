@@ -8,7 +8,7 @@ print('found these packages:', pkgs)
 
 setuptools.setup(
     name="ml_ms4alg",
-    version="0.1.1",
+    version="0.1.2",
     author="Jeremy Magland",
     author_email="",
     description="Mountainsort v4 for MountainLab",
