@@ -6,9 +6,11 @@ with open("README.md", "r") as fh:
 pkgs = setuptools.find_packages()
 print('found these packages:', pkgs)
 
+pkg_name="ml_ms4alg"
+
 setuptools.setup(
-    name="ml_ms4alg",
-    version="0.1.3",
+    name=pkg_name,
+    version="0.1.4",
     author="Jeremy Magland",
     author_email="",
     description="Mountainsort v4 for MountainLab",
@@ -32,4 +34,29 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ),
+    conda={
+        "build_number":0,
+        "build_script":[
+            "python -m pip install --no-deps --ignore-installed .",
+            "CMD=\"ln -sf $SP_DIR/"+pkg_name+" `CONDA_PREFIX=$PREFIX ml-config package_directory`/"+pkg_name+"\"",
+            "echo $CMD",
+            "$CMD"
+        ],
+        "test_commands":[
+            "ml-list-processors",
+            "ml-spec ms4alg.sort"
+        ],
+        "test_imports":[
+        ],
+        "requirements":[
+            "python",
+            "pip",
+            "pybind11",
+            "isosplit5",
+            "numpy",
+            "mountainlab",
+            "mountainlab_pytools",
+            "h5py"
+        ]
+    }
 )
