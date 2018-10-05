@@ -372,6 +372,7 @@ class _NeighborhoodSorter:
         if mode=='phase1':
             print ('Detecting events on channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
             times,assign_to_this_neighborhood=detect_on_neighborhood_from_timeseries_model(X,channel=m_central,nbhd_channels=nbhd_channels,detect_threshold=detect_threshold,detect_sign=detect_sign,detect_interval=detect_interval,margin=clip_size,chunk_infos=chunk_infos)
+            print ('Num events detected on channel {} ({}): {}'.format(m_central+1,mode,len(times))); sys.stdout.flush()
         else:
             list=[]
             with h5py.File(self._hdf5_path,"r") as f:
@@ -481,6 +482,23 @@ class TimeseriesModel_Hdf5:
                         offset=self._chunk_size*cc-self._padding
                         ret[ii,t1a-t1:t2a-t1]=f[str][t1a-offset:t2a-offset]
             return ret
+
+class TimeseriesModel_Recording:
+    def __init__(self,recording):
+        self._recording=recording
+    def numChannels(self):
+        return self._recording.getNumChannels()
+    def numTimepoints(self):
+        return self._recording.getNumFrames()
+    def getChunk(self,*,t1,t2,channels):
+        if (t1<0) or (t2>self.numTimepoints()):
+            ret=np.zeros((len(channels),t2-t1))
+            t1a=np.maximum(t1,0)
+            t2a=np.minimum(t2,self.numTimepoints())
+            ret[:,t1a-(t1):t2a-(t1)]=self.getChunk(t1=t1a,t2=t2a,channels=channels)
+            return ret
+        else:
+            return self._recording.getTraces(start_frame=t1,end_frame=t2,channel_ids=channels)
     
 def prepare_timeseries_hdf5(timeseries_fname,timeseries_hdf5_fname,*,chunk_size,padding):
     chunk_size_with_padding=chunk_size+2*padding
@@ -528,6 +546,7 @@ class MountainSort4:
         self._geom=None
         self._temporary_directory=None
         self._num_workers=0
+        self._recording=None
     def setSortingOpts(self,clip_size=None,adjacency_radius=None,detect_sign=None,detect_interval=None,detect_threshold=None):
         if clip_size is not None:
             self._sorting_opts['clip_size']=clip_size
@@ -539,6 +558,8 @@ class MountainSort4:
             self._sorting_opts['detect_interval']=detect_interval
         if detect_threshold is not None:
             self._sorting_opts['detect_threshold']=detect_threshold
+    def setRecording(self,recording):
+        self._recording=recording
     def setTimeseriesPath(self,path):
         self._timeseries_path=path
     def setFiringsOutPath(self,path):
@@ -549,6 +570,8 @@ class MountainSort4:
         self._geom=geom
     def setTemporaryDirectory(self,tempdir):
         self._temporary_directory=tempdir
+    def eventTimesLabelsChannels(self):
+        return (self._event_times, self._event_labels, self._event_labels)
     def sort(self):
         if not self._temporary_directory:
             raise Exception('Temporary directory not set.')
@@ -565,15 +588,18 @@ class MountainSort4:
         hdf5_chunk_size=1000000
         hdf5_padding=clip_size*10
         print ('Preparing {}...'.format(temp_hdf5_path))
-        prepare_timeseries_hdf5(self._timeseries_path,temp_hdf5_path,chunk_size=hdf5_chunk_size,padding=hdf5_padding)
-        X=TimeseriesModel_Hdf5(temp_hdf5_path)
+        if self._timeseries_path:
+            prepare_timeseries_hdf5(self._timeseries_path,temp_hdf5_path,chunk_size=hdf5_chunk_size,padding=hdf5_padding)
+            X=TimeseriesModel_Hdf5(temp_hdf5_path)
+        else:
+            X=TimeseriesModel_Recording(self._recording)
         
         #X=TimeseriesModel_InMemory(self._timeseries_path)
         
         M=X.numChannels()
         N=X.numTimepoints()
 
-        print ('Preparing neighborhood sorters...'); sys.stdout.flush()
+        print ('Preparing neighborhood sorters (M={}, N={})...'.format(M,N)); sys.stdout.flush()
         neighborhood_sorters=[]
         for m in range(M):
             NS=_NeighborhoodSorter()
@@ -588,11 +614,10 @@ class MountainSort4:
             neighborhood_sorters.append(NS)
 
         pool = multiprocessing.Pool(num_workers)
-        pool.map(run_phase1_sort, neighborhood_sorters) 
-
-        #for m in range(M):
-        #    print ('Running phase1 neighborhood sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
-        #    neighborhood_sorters[m].runPhase1Sort()
+        #pool.map(run_phase1_sort, neighborhood_sorters)
+        for m in range(M):
+            print ('Running phase1 neighborhood sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
+            neighborhood_sorters[m].runPhase1Sort()
 
         for m in range(M):
             times_m=neighborhood_sorters[m].getPhase1Times()
@@ -603,11 +628,10 @@ class MountainSort4:
                     neighborhood_sorters[m2].addAssignedEventTimes(times_m[inds_m_m2])
 
         pool = multiprocessing.Pool(num_workers)
-        pool.map(run_phase2_sort, neighborhood_sorters) 
-
-        #for m in range(M):
-        #    print ('Running phase2 sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
-        #    neighborhood_sorters[m].runPhase2Sort()
+        #pool.map(run_phase2_sort, neighborhood_sorters) 
+        for m in range(M):
+            print ('Running phase2 sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
+            neighborhood_sorters[m].runPhase2Sort()
 
         print ('Preparing output...'); sys.stdout.flush()
         all_times_list=[]
@@ -630,8 +654,13 @@ class MountainSort4:
         all_labels=all_labels[sort_inds]
         all_channels=all_channels[sort_inds]
 
-        print ('Writing firings file...'); sys.stdout.flush()
-        write_firings_file(all_channels,all_times,all_labels,self._firings_out_path)
+        self._event_times=all_times
+        self._event_labels=all_labels
+        self._event_channels=all_channels
+
+        if self._firings_out_path is not None:
+            print ('Writing firings file...'); sys.stdout.flush()
+            write_firings_file(all_channels,all_times,all_labels,self._firings_out_path)
 
         print ('Done.'); sys.stdout.flush()
 

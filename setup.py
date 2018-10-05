@@ -27,7 +27,8 @@ setuptools.setup(
         'isosplit5',
         'numpy',
         'mountainlab_pytools',
-        'h5py'
+        'h5py',
+        'spikeinterface'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
