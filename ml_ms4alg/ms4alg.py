@@ -614,10 +614,10 @@ class MountainSort4:
             neighborhood_sorters.append(NS)
 
         pool = multiprocessing.Pool(num_workers)
-        #pool.map(run_phase1_sort, neighborhood_sorters)
-        for m in range(M):
-            print ('Running phase1 neighborhood sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
-            neighborhood_sorters[m].runPhase1Sort()
+        pool.map(run_phase1_sort, neighborhood_sorters)
+        #for m in range(M):
+        #    print ('Running phase1 neighborhood sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
+        #    neighborhood_sorters[m].runPhase1Sort()
 
         for m in range(M):
             times_m=neighborhood_sorters[m].getPhase1Times()
@@ -628,10 +628,10 @@ class MountainSort4:
                     neighborhood_sorters[m2].addAssignedEventTimes(times_m[inds_m_m2])
 
         pool = multiprocessing.Pool(num_workers)
-        #pool.map(run_phase2_sort, neighborhood_sorters) 
-        for m in range(M):
-            print ('Running phase2 sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
-            neighborhood_sorters[m].runPhase2Sort()
+        pool.map(run_phase2_sort, neighborhood_sorters) 
+        #for m in range(M):
+        #    print ('Running phase2 sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
+        #    neighborhood_sorters[m].runPhase2Sort()
 
         print ('Preparing output...'); sys.stdout.flush()
         all_times_list=[]
