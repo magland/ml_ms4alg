@@ -28,7 +28,8 @@ setuptools.setup(
         'numpy',
         'mountainlab_pytools',
         'h5py',
-        'spikeinterface'
+        'spikeinterface',
+        'sklearn'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
@@ -57,7 +58,8 @@ setuptools.setup(
             "numpy",
             "mountainlab",
             "mountainlab_pytools",
-            "h5py"
+            "h5py",
+            "sklearn"
         ]
     }
 )
