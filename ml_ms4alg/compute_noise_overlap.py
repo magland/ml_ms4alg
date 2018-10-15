@@ -15,10 +15,9 @@ def compute_noise_overlap(recording,sorting,unit_ids):
         min_time=np.min(times)
         max_time=np.max(times)
         times_control=np.random.choice(np.arange(min_time,max_time+1),size=Nc)
-        cs2=int(clip_size/2)
-        clips=np.stack(recording.getSnippets(snippet_len_before=cs2, snippet_len_after=cs2, reference_frames=times))
+        clips=np.stack(recording.getSnippets(snippet_len=clip_size, reference_frames=times))
         
-        clips_control=np.stack(recording.getSnippets(snippet_len_before=cs2, snippet_len_after=cs2, reference_frames=times_control))
+        clips_control=np.stack(recording.getSnippets(snippet_len=clip_size, reference_frames=times_control))
         template=np.mean(clips,axis=0)
         max_ind=np.unravel_index(np.argmax(np.abs(template)),template.shape)
         chmax=max_ind[0]

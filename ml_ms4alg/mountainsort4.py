@@ -36,11 +36,10 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
 
 def _get_geom_from_recording(recording):
   M=recording.getNumChannels()
-  info0=recording.getChannelInfo(channel_id=0)
-  nd=len(info0['location'])
+  location0=recording.getChannelProperty(0,'location')
+  nd=len(location0)
   geom=np.zeros((M,nd))
   for i in range(M):
-    info0=recording.getChannelInfo(channel_id=i)
-    loc0=info0['location']
-    geom[i,:]=loc0
+    location_i=recording.getChannelProperty(i,'location')
+    geom[i,:]=location_i
   return geom
