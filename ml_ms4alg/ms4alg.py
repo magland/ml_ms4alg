@@ -487,7 +487,7 @@ class TimeseriesModel_Recording:
     def __init__(self,recording):
         self._recording=recording
     def numChannels(self):
-        return self._recording.getNumChannels()
+        return len(self._recording.getChannelIds())
     def numTimepoints(self):
         return self._recording.getNumFrames()
     def getChunk(self,*,t1,t2,channels):
