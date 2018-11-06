@@ -10,7 +10,7 @@ pkg_name="ml_ms4alg"
 
 setuptools.setup(
     name=pkg_name,
-    version="0.1.16",
+    version="0.1.17",
     author="Jeremy Magland",
     author_email="",
     description="Mountainsort v4 for MountainLab",
