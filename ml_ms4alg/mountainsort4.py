@@ -3,8 +3,12 @@ import tempfile
 import shutil
 import spikeinterface as si
 import numpy as np
+import multiprocessing
 
-def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detect_threshold=3,detect_interval=10):
+def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detect_threshold=3,detect_interval=10,num_workers=None):
+  if num_workers is None:
+    num_workers=int((multiprocessing.cpu_count()+1)/2)
+
   MS4=MountainSort4()
   MS4.setRecording(recording)
   geom=_get_geom_from_recording(recording)
@@ -17,7 +21,7 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
     detect_threshold=detect_threshold
   )
   tmpdir = tempfile.mkdtemp()
-  MS4.setNumWorkers(1)
+  MS4.setNumWorkers(num_workers)
   print('Using tmpdir: '+tmpdir)
   MS4.setTemporaryDirectory(tmpdir)
   try:
