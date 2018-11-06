@@ -578,7 +578,7 @@ class MountainSort4:
 
         num_workers=self._num_workers
         if num_workers<=0:
-            num_workers=multiprocessing.cpu_count()
+            num_workers=int((multiprocessing.cpu_count()+1)/2)
 
         clip_size=self._sorting_opts['clip_size']
 

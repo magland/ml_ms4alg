@@ -9,6 +9,8 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
   if num_workers is None:
     num_workers=int((multiprocessing.cpu_count()+1)/2)
 
+  print('Using {} workers.'.format(num_workers))
+
   MS4=MountainSort4()
   MS4.setRecording(recording)
   geom=_get_geom_from_recording(recording)
