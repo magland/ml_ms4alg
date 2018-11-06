@@ -580,6 +580,8 @@ class MountainSort4:
         if num_workers<=0:
             num_workers=int((multiprocessing.cpu_count()+1)/2)
 
+        print('Num. workers = {}'.format(num_workers))
+
         clip_size=self._sorting_opts['clip_size']
 
         temp_hdf5_path=self._temporary_directory+'/timeseries.hdf5'
