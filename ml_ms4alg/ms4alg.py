@@ -491,6 +491,10 @@ class TimeseriesModel_Recording:
     def numTimepoints(self):
         return self._recording.getNumFrames()
     def getChunk(self,*,t1,t2,channels):
+        channel_ids=self._recording.getChannelIds()
+        channels2=np.zeros(len(channels))
+        for i in range(len(channels)):
+            channels2[i]=channel_ids[int(channels[i])]
         if (t1<0) or (t2>self.numTimepoints()):
             ret=np.zeros((len(channels),t2-t1))
             t1a=np.maximum(t1,0)
@@ -498,7 +502,7 @@ class TimeseriesModel_Recording:
             ret[:,t1a-(t1):t2a-(t1)]=self.getChunk(t1=t1a,t2=t2a,channels=channels)
             return ret
         else:
-            return self._recording.getTraces(start_frame=t1,end_frame=t2,channel_ids=channels)
+            return self._recording.getTraces(start_frame=t1,end_frame=t2,channel_ids=channels2)
     
 def prepare_timeseries_hdf5(timeseries_fname,timeseries_hdf5_fname,*,chunk_size,padding):
     chunk_size_with_padding=chunk_size+2*padding
