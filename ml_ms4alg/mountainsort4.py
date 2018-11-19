@@ -1,7 +1,7 @@
 from .ms4alg import MountainSort4
 import tempfile
 import shutil
-import spikeinterface as si
+import spikeextractors as se
 import numpy as np
 
 def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detect_threshold=3,detect_interval=10):
@@ -29,7 +29,7 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
   print('Cleaning tmpdir: '+tmpdir)
   shutil.rmtree(tmpdir)
   times,labels,channels=MS4.eventTimesLabelsChannels()
-  output=si.NumpySortingExtractor()
+  output=se.NumpySortingExtractor()
   output.setTimesLabels(times=times,labels=labels)
   return output
 
