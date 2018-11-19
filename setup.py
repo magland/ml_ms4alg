@@ -28,7 +28,7 @@ setuptools.setup(
         'numpy',
         'mountainlab_pytools',
         'h5py',
-        'spikeinterface',
+        'spikeextractors',
         'sklearn'
     ],
     classifiers=(
