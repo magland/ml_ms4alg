@@ -34,13 +34,9 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
     raise
   print('Cleaning tmpdir::::: '+tmpdir)
   shutil.rmtree(tmpdir)
-  print('debug 1')
   times,labels,channels=MS4.eventTimesLabelsChannels()
-  print('debug 2')
   output=se.NumpySortingExtractor()
-  print('debug 3')
   output.setTimesLabels(times=times,labels=labels)
-  print('debug 4')
   return output
 
 
