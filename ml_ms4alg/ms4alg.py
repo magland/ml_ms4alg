@@ -369,6 +369,8 @@ class _NeighborhoodSorter:
         ## TODO: remove this
         #X_neigh=X.getChunk(t1=0,t2=N,channels=nbhd_channels)
 
+        print('Neighboorhood of channel {} has {} channels.'.format(m_central,M_neigh))
+
         if mode=='phase1':
             print ('Detecting events on channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
             times,assign_to_this_neighborhood=detect_on_neighborhood_from_timeseries_model(X,channel=m_central,nbhd_channels=nbhd_channels,detect_threshold=detect_threshold,detect_sign=detect_sign,detect_interval=detect_interval,margin=clip_size,chunk_infos=chunk_infos)
