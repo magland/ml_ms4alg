@@ -4,6 +4,7 @@ from mountainlab_pytools import mdaio
 import sys
 import os
 import multiprocessing
+import datetime
 
 # import h5py
 import warnings
@@ -49,6 +50,7 @@ def detect_on_channel(data,*,detect_threshold,detect_interval,detect_sign,margin
     times=max_inds[ np.where(max_vals>=detect_threshold)[0] ]
     if margin>0:
         times=times[np.where((times>=margin)&(times<N-margin))[0]]
+
     return times
 
 def get_channel_neighborhood(m,Geom,*,adjacency_radius):
@@ -361,6 +363,7 @@ class _NeighborhoodSorter:
             geom=np.zeros((M_global,2))
 
         chunk_infos=create_chunk_infos(N=N,chunk_size=100000)
+        #chunk_infos=create_chunk_infos(N=N,chunk_size=10000000)
 
         nbhd_channels=get_channel_neighborhood(m_central,geom,adjacency_radius=o['adjacency_radius'])
         M_neigh=len(nbhd_channels)
@@ -373,7 +376,9 @@ class _NeighborhoodSorter:
 
         if mode=='phase1':
             print ('Detecting events on channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
+            timer = datetime.datetime.now() 
             times,assign_to_this_neighborhood=detect_on_neighborhood_from_timeseries_model(X,channel=m_central,nbhd_channels=nbhd_channels,detect_threshold=detect_threshold,detect_sign=detect_sign,detect_interval=detect_interval,margin=clip_size,chunk_infos=chunk_infos)
+            print('Elapsed time for detect on neighborhood:',datetime.datetime.now()-timer)
             print ('Num events detected on channel {} ({}): {}'.format(m_central+1,mode,len(times))); sys.stdout.flush()
         else:
             list=[]
@@ -385,6 +390,16 @@ class _NeighborhoodSorter:
         print ('Computing PCA features for channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
         max_num_clips_for_pca=1000 # TODO: this should be a setting somewhere
         # Note: we use twice as many features, because of branch method (MT x F)
+
+        ## It is possible that a small number of events are duplicates (not exactly sure why)
+        ## Let's eliminate those
+        if len(times)!=len(np.unique(times)):
+            print('WARNING: found {} of {} duplicate events for channel {} in {}'.format(len(times)-len(np.unique(times)),len(times),self._central_channel,mode))
+            times=np.unique(times)
+        else:
+            if mode=='phase2':
+                print('No duplicate events found for channel {} in {}'.format(self._central_channel,mode))
+        #times=np.sort(times)
         features = compute_event_features_from_timeseries_model(X,times,nbhd_channels=nbhd_channels,clip_size=clip_size,max_num_clips_for_pca=max_num_clips_for_pca,num_features=num_features*2,chunk_infos=chunk_infos)
         
         # The clustering
@@ -506,6 +521,32 @@ class TimeseriesModel_Recording:
         else:
             return self._recording.getTraces(start_frame=t1,end_frame=t2,channel_ids=channels2)
     
+def prepare_timeseries_hdf5_from_recording(recording,timeseries_hdf5_fname,*,chunk_size,padding):
+    chunk_size_with_padding=chunk_size+2*padding
+    with h5py.File(timeseries_hdf5_fname,"w") as f:
+        M=len(recording.getChannelIds()) # Number of channels
+        N=recording.getNumFrames() # Number of timepoints
+        num_chunks=int(np.ceil(N/chunk_size))
+        f.create_dataset('chunk_size',data=[chunk_size])
+        f.create_dataset('num_chunks',data=[num_chunks])
+        f.create_dataset('padding',data=[padding])
+        f.create_dataset('num_channels',data=[M])
+        f.create_dataset('num_timepoints',data=[N])
+        for j in range(num_chunks):
+            padded_chunk=np.zeros((M,chunk_size_with_padding),dtype=float) # fix dtype here
+            t1=int(j*chunk_size) # first timepoint of the chunk
+            t2=int(np.minimum(N,(t1+chunk_size))) # last timepoint of chunk (+1)
+            s1=int(np.maximum(0,t1-padding)) # first timepoint including the padding
+            s2=int(np.minimum(N,t2+padding)) # last timepoint (+1) including the padding
+            
+            # determine aa so that t1-s1+aa = padding
+            # so, aa = padding-(t1-s1)
+            aa = padding-(t1-s1)
+            padded_chunk[:,aa:aa+s2-s1]=recording.getTraces(start_frame=s1,end_frame=s2) # Read the padded chunk
+
+            for m in range(M):
+                f.create_dataset('part-{}-{}'.format(m,j),data=padded_chunk[m,:].ravel())
+
 def prepare_timeseries_hdf5(timeseries_fname,timeseries_hdf5_fname,*,chunk_size,padding):
     chunk_size_with_padding=chunk_size+2*padding
     with h5py.File(timeseries_hdf5_fname,"w") as f:
@@ -600,7 +641,9 @@ class MountainSort4:
             prepare_timeseries_hdf5(self._timeseries_path,temp_hdf5_path,chunk_size=hdf5_chunk_size,padding=hdf5_padding)
             X=TimeseriesModel_Hdf5(temp_hdf5_path)
         else:
-            X=TimeseriesModel_Recording(self._recording)
+            prepare_timeseries_hdf5_from_recording(self._recording,temp_hdf5_path,chunk_size=hdf5_chunk_size,padding=hdf5_padding)
+            #X=TimeseriesModel_Recording(self._recording)
+            X=TimeseriesModel_Hdf5(temp_hdf5_path)
         
         #X=TimeseriesModel_InMemory(self._timeseries_path)
         
