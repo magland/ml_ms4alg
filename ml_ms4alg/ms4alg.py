@@ -666,6 +666,8 @@ class MountainSort4:
 
         pool = multiprocessing.Pool(num_workers)
         pool.map(run_phase1_sort, neighborhood_sorters)
+        pool.close()
+        pool.join()
         #for m in range(M):
         #    print ('Running phase1 neighborhood sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
         #    neighborhood_sorters[m].runPhase1Sort()
@@ -680,6 +682,8 @@ class MountainSort4:
 
         pool = multiprocessing.Pool(num_workers)
         pool.map(run_phase2_sort, neighborhood_sorters) 
+        pool.close()
+        pool.join()
         #for m in range(M):
         #    print ('Running phase2 sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
         #    neighborhood_sorters[m].runPhase2Sort()
@@ -713,5 +717,5 @@ class MountainSort4:
             print ('Writing firings file...'); sys.stdout.flush()
             write_firings_file(all_channels,all_times,all_labels,self._firings_out_path)
 
-        print ('Done.'); sys.stdout.flush()
+        print ('Done with ms4alg.'); sys.stdout.flush()
 
