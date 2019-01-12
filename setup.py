@@ -28,38 +28,12 @@ setuptools.setup(
         'numpy',
         'mountainlab_pytools',
         'h5py',
-        'spikeextractors',
-        'sklearn'
+        'sklearn',
+        'spikeextractors'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
-    ),
-    conda={
-        "build_number":0,
-        "build_script":[
-            "python -m pip install .",
-            "CMD=\"ln -sf $SP_DIR/"+pkg_name+" `CONDA_PREFIX=$PREFIX ml-config package_directory`/"+pkg_name+"\"",
-            "echo $CMD",
-            "$CMD"
-        ],
-        "test_commands":[
-            "ml-list-processors",
-            "ml-spec ms4alg.sort"
-        ],
-        "test_imports":[
-        ],
-        "requirements":[
-            "python",
-            "pip",
-            "pybind11",
-            "isosplit5",
-            "numpy",
-            "mountainlab",
-            "mountainlab_pytools",
-            "h5py",
-            "sklearn"
-        ]
-    }
+    )
 )
