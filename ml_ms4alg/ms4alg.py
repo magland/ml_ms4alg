@@ -357,7 +357,8 @@ class _NeighborhoodSorter:
         detect_interval=o['detect_interval']
         detect_sign=o['detect_sign']
         detect_threshold=o['detect_threshold']
-        num_features=10 # TODO: make this a sorting opt
+        num_features=o['num_features']
+        # num_features=10
         geom=self._geom
         if geom is None:
             geom=np.zeros((M_global,2))
@@ -388,7 +389,8 @@ class _NeighborhoodSorter:
             times=np.concatenate(list) if list else np.array([])
 
         print ('Computing PCA features for channel {} ({})...'.format(m_central+1,mode)); sys.stdout.flush()
-        max_num_clips_for_pca=1000 # TODO: this should be a setting somewhere
+        # max_num_clips_for_pca=1000
+        max_num_clips_for_pca=o['max_num_clips_for_pca']
         # Note: we use twice as many features, because of branch method (MT x F)
 
         ## It is possible that a small number of events are duplicates (not exactly sure why)
@@ -587,6 +589,8 @@ class MountainSort4:
             "detect_sign":None, #must be set explicitly
             "detect_interval":10,
             "detect_threshold":3,
+            "num_features":10,
+            "max_num_clips_for_pca":1000,
         }
         self._timeseries_path=None
         self._firings_out_path=None
@@ -594,7 +598,8 @@ class MountainSort4:
         self._temporary_directory=None
         self._num_workers=0
         self._recording=None
-    def setSortingOpts(self,clip_size=None,adjacency_radius=None,detect_sign=None,detect_interval=None,detect_threshold=None):
+    def setSortingOpts(self,clip_size=None,adjacency_radius=None,detect_sign=None,detect_interval=None,
+                       detect_threshold=None,num_features=None,max_num_clips_for_pca=None):
         if clip_size is not None:
             self._sorting_opts['clip_size']=clip_size
         if adjacency_radius is not None:
@@ -605,6 +610,10 @@ class MountainSort4:
             self._sorting_opts['detect_interval']=detect_interval
         if detect_threshold is not None:
             self._sorting_opts['detect_threshold']=detect_threshold
+        if num_features is not None:
+            self._sorting_opts['num_features']=num_features
+        if max_num_clips_for_pca is not None:
+            self._sorting_opts['max_num_clips_for_pca']=max_num_clips_for_pca
     def setRecording(self,recording):
         self._recording=recording
     def setTimeseriesPath(self,path):

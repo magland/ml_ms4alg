@@ -8,11 +8,12 @@ processor_name='ms4alg.sort'
 processor_version='0.11'
 
 def sort(*,
-        timeseries,geom='',
-        firings_out,
-        adjacency_radius,detect_sign,
-        detect_interval=10,detect_threshold=3,clip_size=50,
-        num_workers=multiprocessing.cpu_count()):
+         timeseries,geom='',
+         firings_out,
+         adjacency_radius,detect_sign,
+         detect_interval=10,detect_threshold=3,clip_size=50,
+         num_features=10, max_num_clips_for_pca=1000,
+         num_workers=multiprocessing.cpu_count()):
     """
     MountainSort spike sorting (version 4)
 
@@ -36,6 +37,10 @@ def sort(*,
         The minimum number of timepoints between adjacent spikes detected in the same channel neighborhood.
     clip_size : int
         Size of extracted clips or snippets, used throughout
+    num_features : int
+        Number of features to use when performing PCA
+    max_num_clips_for_pca : int
+        The max number of clips that will be subsampled for PCA.
     num_workers : int
         Number of simultaneous workers (or processes). The default is multiprocessing.cpu_count().
     """
@@ -64,7 +69,9 @@ def sort(*,
     
     MS4=ms4alg.MountainSort4()
     MS4.setGeom(Geom)
-    MS4.setSortingOpts(clip_size=clip_size,adjacency_radius=adjacency_radius,detect_sign=detect_sign,detect_interval=detect_interval,detect_threshold=detect_threshold)
+    MS4.setSortingOpts(clip_size=clip_size,adjacency_radius=adjacency_radius,detect_sign=detect_sign,
+                       detect_interval=detect_interval,detect_threshold=detect_threshold,
+                       num_features=num_features,max_num_clips_for_pca=max_num_clips_for_pca)
     MS4.setNumWorkers(num_workers)
     MS4.setTimeseriesPath(timeseries)
     MS4.setFiringsOutPath(firings_out)
