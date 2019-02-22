@@ -396,7 +396,7 @@ class _NeighborhoodSorter:
         ## It is possible that a small number of events are duplicates (not exactly sure why)
         ## Let's eliminate those
         if len(times)!=len(np.unique(times)):
-            print('WARNING: found {} of {} duplicate events for channel {} in {}'.format(len(times)-len(np.unique(times)),len(times),self._central_channel,mode))
+            print('WARNING: found {} of {} duplicate events for channel {} in {}'.format(len(times)-len(np.unique(times)),len(times),self._central_channel+1,mode))
             times=np.unique(times)
         else:
             if mode=='phase2':
