@@ -1,9 +1,9 @@
 from .ms4alg import MountainSort4
 import tempfile
 import shutil
-import spikeextractors as se
 import numpy as np
 import multiprocessing
+from .plug_spikeextractors import _NumpySortingExtractor
 
 def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detect_threshold=3,detect_interval=10,num_workers=None):
   if num_workers is None:
@@ -35,7 +35,7 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
   print('Cleaning tmpdir::::: '+tmpdir)
   shutil.rmtree(tmpdir)
   times,labels,channels=MS4.eventTimesLabelsChannels()
-  output=se.NumpySortingExtractor()
+  output=_NumpySortingExtractor()
   output.setTimesLabels(times=times,labels=labels)
   return output
 
