@@ -22,7 +22,7 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
     detect_interval=detect_interval,
     detect_threshold=detect_threshold
   )
-  tmpdir = tempfile.mkdtemp()
+  tmpdir = tempfile.mkdtemp(prefix=os.environ.get('TEMPDIR','')+'/')
   MS4.setNumWorkers(num_workers)
   print('Using tmpdir: '+tmpdir)
   MS4.setTemporaryDirectory(tmpdir)
