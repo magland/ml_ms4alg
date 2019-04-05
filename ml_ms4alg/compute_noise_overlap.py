@@ -3,21 +3,21 @@ import numpy as np
 
 def compute_noise_overlap(recording,sorting,unit_ids):
     if unit_ids is None:
-        unit_ids=sorting.getUnitIds()
+        unit_ids=sorting.get_unit_ids()
     max_num_events=500
     clip_size=50
     ret=[]
     for unit in unit_ids:
-        times=sorting.getUnitSpikeTrain(unit_id=unit)
+        times=sorting.get_unit_spike_train(unit_id=unit)
         if len(times)>max_num_events:
             times=np.random.choice(times,size=max_num_events)
         Nc=len(times)
         min_time=np.min(times)
         max_time=np.max(times)
         times_control=np.random.choice(np.arange(min_time,max_time+1),size=Nc)
-        clips=np.stack(recording.getSnippets(snippet_len=clip_size, reference_frames=times))
+        clips=np.stack(recording.get_snippets(snippet_len=clip_size, reference_frames=times))
         
-        clips_control=np.stack(recording.getSnippets(snippet_len=clip_size, reference_frames=times_control))
+        clips_control=np.stack(recording.get_snippets(snippet_len=clip_size, reference_frames=times_control))
         template=np.mean(clips,axis=0)
         max_ind=np.unravel_index(np.argmax(np.abs(template)),template.shape)
         chmax=max_ind[0]

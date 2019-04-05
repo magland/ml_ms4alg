@@ -3,7 +3,7 @@ import tempfile
 import shutil
 import numpy as np
 import multiprocessing
-from .plug_spikeextractors import _NumpySortingExtractor
+import spikeextractors as se
 
 def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detect_threshold=3,detect_interval=10,num_workers=None):
   if num_workers is None:
@@ -35,18 +35,18 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
   print('Cleaning tmpdir::::: '+tmpdir)
   shutil.rmtree(tmpdir)
   times,labels,channels=MS4.eventTimesLabelsChannels()
-  output=_NumpySortingExtractor()
+  output=se.NumpySortingExtractor()
   output.setTimesLabels(times=times,labels=labels)
   return output
 
 
 def _get_geom_from_recording(recording):
-  channel_ids=recording.getChannelIds()
+  channel_ids=recording.get_channel_ids()
   M=len(channel_ids)
-  location0=recording.getChannelProperty(channel_ids[0],'location')
+  location0=recording.get_channel_property(channel_ids[0],'location')
   nd=len(location0)
   geom=np.zeros((M,nd))
   for i in range(M):
-    location_i=recording.getChannelProperty(channel_ids[i],'location')
+    location_i=recording.get_channel_property(channel_ids[i],'location')
     geom[i,:]=location_i
   return geom
