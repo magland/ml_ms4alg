@@ -36,7 +36,7 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
   shutil.rmtree(tmpdir)
   times,labels,channels=MS4.eventTimesLabelsChannels()
   output=se.NumpySortingExtractor()
-  output.setTimesLabels(times=times,labels=labels)
+  output.set_times_labels(times=times,labels=labels)
   return output
 
 
