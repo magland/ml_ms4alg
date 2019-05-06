@@ -506,11 +506,11 @@ class TimeseriesModel_Recording:
     def __init__(self,recording):
         self._recording=recording
     def numChannels(self):
-        return len(self._recording.getChannelIds())
+        return len(self._recording.get_channel_ids())
     def numTimepoints(self):
-        return self._recording.getNumFrames()
+        return self._recording.get_num_frames()
     def getChunk(self,*,t1,t2,channels):
-        channel_ids=self._recording.getChannelIds()
+        channel_ids=self._recording.get_channel_ids()
         channels2=np.zeros(len(channels))
         for i in range(len(channels)):
             channels2[i]=channel_ids[int(channels[i])]
@@ -521,13 +521,13 @@ class TimeseriesModel_Recording:
             ret[:,t1a-(t1):t2a-(t1)]=self.getChunk(t1=t1a,t2=t2a,channels=channels)
             return ret
         else:
-            return self._recording.getTraces(start_frame=t1,end_frame=t2,channel_ids=channels2)
+            return self._recording.get_traces(start_frame=t1,end_frame=t2,channel_ids=channels2)
     
 def prepare_timeseries_hdf5_from_recording(recording,timeseries_hdf5_fname,*,chunk_size,padding):
     chunk_size_with_padding=chunk_size+2*padding
     with h5py.File(timeseries_hdf5_fname,"w") as f:
-        M=len(recording.getChannelIds()) # Number of channels
-        N=recording.getNumFrames() # Number of timepoints
+        M=len(recording.get_channel_ids()) # Number of channels
+        N=recording.get_num_frames() # Number of timepoints
         num_chunks=int(np.ceil(N/chunk_size))
         f.create_dataset('chunk_size',data=[chunk_size])
         f.create_dataset('num_chunks',data=[num_chunks])
@@ -544,7 +544,7 @@ def prepare_timeseries_hdf5_from_recording(recording,timeseries_hdf5_fname,*,chu
             # determine aa so that t1-s1+aa = padding
             # so, aa = padding-(t1-s1)
             aa = padding-(t1-s1)
-            padded_chunk[:,aa:aa+s2-s1]=recording.getTraces(start_frame=s1,end_frame=s2) # Read the padded chunk
+            padded_chunk[:,aa:aa+s2-s1]=recording.get_traces(start_frame=s1,end_frame=s2) # Read the padded chunk
 
             for m in range(M):
                 f.create_dataset('part-{}-{}'.format(m,j),data=padded_chunk[m,:].ravel())
