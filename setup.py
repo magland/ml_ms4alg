@@ -29,7 +29,7 @@ setuptools.setup(
         'mountainlab_pytools',
         'h5py',
         'sklearn',
-#        'spikeextractors'
+        'spikeextractors>=0.4.1'
     ],
     classifiers=(
         "Programming Language :: Python :: 3",
