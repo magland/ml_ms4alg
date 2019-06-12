@@ -1,6 +1,7 @@
 from .ms4alg import MountainSort4
-import tempfile
+import os
 import shutil
+import tempfile
 import numpy as np
 import multiprocessing
 from .plug_spikeextractors import _NumpySortingExtractor
