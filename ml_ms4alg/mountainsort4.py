@@ -1,6 +1,7 @@
 from .ms4alg import MountainSort4
-import tempfile
+import os
 import shutil
+import tempfile
 import numpy as np
 import multiprocessing
 import spikeextractors as se
@@ -22,7 +23,7 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
     detect_interval=detect_interval,
     detect_threshold=detect_threshold
   )
-  tmpdir = tempfile.mkdtemp()
+  tmpdir = tempfile.mkdtemp(dir=os.environ.get('TEMPDIR','/tmp'))
   MS4.setNumWorkers(num_workers)
   print('Using tmpdir: '+tmpdir)
   MS4.setTemporaryDirectory(tmpdir)
