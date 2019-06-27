@@ -6,11 +6,13 @@ import numpy as np
 import multiprocessing
 import spikeextractors as se
 
-def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detect_threshold=3,detect_interval=10,num_workers=None):
+def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detect_threshold=3,detect_interval=10,
+                  num_workers=None,verbose=True):
   if num_workers is None:
     num_workers=int((multiprocessing.cpu_count()+1)/2)
 
-  print('Using {} workers.'.format(num_workers))
+  if verbose:
+    print('Using {} workers.'.format(num_workers))
 
   MS4=MountainSort4()
   MS4.setRecording(recording)
@@ -21,19 +23,23 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
     adjacency_radius=adjacency_radius,
     detect_sign=detect_sign,
     detect_interval=detect_interval,
-    detect_threshold=detect_threshold
+    detect_threshold=detect_threshold,
+    verbose=verbose
   )
   tmpdir = tempfile.mkdtemp(dir=os.environ.get('TEMPDIR','/tmp'))
   MS4.setNumWorkers(num_workers)
-  print('Using tmpdir: '+tmpdir)
+  if verbose:
+    print('Using tmpdir: '+tmpdir)
   MS4.setTemporaryDirectory(tmpdir)
   try:
     MS4.sort()
   except:
-    print('Cleaning tmpdir:: '+tmpdir)
+    if verbose:
+      print('Cleaning tmpdir:: '+tmpdir)
     shutil.rmtree(tmpdir)
     raise
-  print('Cleaning tmpdir::::: '+tmpdir)
+  if verbose:
+    print('Cleaning tmpdir::::: '+tmpdir)
   shutil.rmtree(tmpdir)
   times,labels,channels=MS4.eventTimesLabelsChannels()
   output=se.NumpySortingExtractor()
