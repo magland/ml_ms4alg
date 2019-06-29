@@ -656,7 +656,8 @@ class MountainSort4:
             os.remove(temp_hdf5_path)
         hdf5_chunk_size=1000000
         hdf5_padding=clip_size*10
-        print ('Preparing {}...'.format(temp_hdf5_path))
+        if self._sorting_opts['verbose']:
+            print ('Preparing {}...'.format(temp_hdf5_path))
         if self._timeseries_path:
             prepare_timeseries_hdf5(self._timeseries_path,temp_hdf5_path,chunk_size=hdf5_chunk_size,padding=hdf5_padding)
             X=TimeseriesModel_Hdf5(temp_hdf5_path)
