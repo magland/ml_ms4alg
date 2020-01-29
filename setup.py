@@ -6,11 +6,15 @@ with open("README.md", "r") as fh:
 pkgs = setuptools.find_packages()
 print('found these packages:', pkgs)
 
+d = {}
+exec(open("ml_ms4alg/version.py").read(), None, d)
+version = d['version']
+
 pkg_name="ml_ms4alg"
 
 setuptools.setup(
     name=pkg_name,
-    version="0.3.2",
+    version=version,
     author="Jeremy Magland",
     author_email="",
     description="Mountainsort v4 for MountainLab",
