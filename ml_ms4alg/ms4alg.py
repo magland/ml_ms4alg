@@ -3,7 +3,10 @@ import isosplit5
 from mountainlab_pytools import mdaio
 import sys
 import os
-import multiprocessing
+#import multiprocessing
+import dask
+import dask.multiprocessing
+
 import datetime
 
 # import h5py
@@ -640,6 +643,7 @@ class MountainSort4:
     def eventTimesLabelsChannels(self):
         return (self._event_times, self._event_labels, self._event_labels)
     def sort(self):
+
         if not self._temporary_directory:
             raise Exception('Temporary directory not set.')
 
@@ -649,9 +653,12 @@ class MountainSort4:
         if self._sorting_opts['verbose']:
             print('Num. workers = {}'.format(num_workers))
 
+        dask.config.set(scheduler='processes')  # overwrite default with multiprocessing scheduler
+
         clip_size=self._sorting_opts['clip_size']
 
         temp_hdf5_path=self._temporary_directory+'/timeseries.hdf5'
+
         if os.path.exists(temp_hdf5_path):
             os.remove(temp_hdf5_path)
         hdf5_chunk_size=1000000
@@ -674,6 +681,7 @@ class MountainSort4:
         if self._sorting_opts['verbose']:
             print('Preparing neighborhood sorters (M={}, N={})...'.format(M,N)); sys.stdout.flush()
         neighborhood_sorters=[]
+        dask_list = []
         for m in range(M):
             NS=_NeighborhoodSorter()
             NS.setSortingOpts(self._sorting_opts)
@@ -685,15 +693,15 @@ class MountainSort4:
                 os.remove(fname0)
             NS.setHdf5FilePath(fname0)
             neighborhood_sorters.append(NS)
+            tmp_dask = dask.delayed(run_phase1_sort(NS))
+            dask_list.append(tmp_dask)
 
-        pool = multiprocessing.Pool(num_workers)
-        pool.map(run_phase1_sort, neighborhood_sorters)
-        pool.close()
-        pool.join()
+        dask.compute(*dask_list, num_workers=self._num_workers)
+
         #for m in range(M):
         #    print ('Running phase1 neighborhood sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
         #    neighborhood_sorters[m].runPhase1Sort()
-
+        dask_list = []
         for m in range(M):
             times_m=neighborhood_sorters[m].getPhase1Times()
             channel_assignments_m=neighborhood_sorters[m].getPhase1ChannelAssignments()
@@ -701,11 +709,11 @@ class MountainSort4:
                 inds_m_m2=np.where(channel_assignments_m==m2)[0]
                 if len(inds_m_m2)>0:
                     neighborhood_sorters[m2].addAssignedEventTimes(times_m[inds_m_m2])
+        for m in range(M):
+            tmp_dask = dask.delayed(run_phase2_sort(neighborhood_sorters[m]))
+            dask_list.append(tmp_dask)
+        dask.compute(*dask_list, num_workers=self._num_workers)
 
-        pool = multiprocessing.Pool(num_workers)
-        pool.map(run_phase2_sort, neighborhood_sorters) 
-        pool.close()
-        pool.join()
         #for m in range(M):
         #    print ('Running phase2 sort for channel {} of {}...'.format(m+1,M)); sys.stdout.flush()
         #    neighborhood_sorters[m].runPhase2Sort()
