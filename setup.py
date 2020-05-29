@@ -27,7 +27,7 @@ setuptools.setup(
     },
     install_requires=
     [
-    	'dask'
+    	'dask',
         'pybind11',
         'isosplit5',
         'numpy',
