@@ -3,9 +3,13 @@ import isosplit5
 from mountainlab_pytools import mdaio
 import sys
 import os
-#import multiprocessing
+import multiprocessing
 import dask
 import dask.multiprocessing
+#import graphviz
+
+from dask.distributed import Client, progress
+
 
 import datetime
 
@@ -682,6 +686,7 @@ class MountainSort4:
             print('Preparing neighborhood sorters (M={}, N={})...'.format(M,N)); sys.stdout.flush()
         neighborhood_sorters=[]
         dask_list = []
+        
         for m in range(M):
             NS=_NeighborhoodSorter()
             NS.setSortingOpts(self._sorting_opts)
@@ -693,7 +698,7 @@ class MountainSort4:
                 os.remove(fname0)
             NS.setHdf5FilePath(fname0)
             neighborhood_sorters.append(NS)
-            tmp_dask = dask.delayed(run_phase1_sort(NS))
+            tmp_dask = dask.delayed(run_phase1_sort)(NS)
             dask_list.append(tmp_dask)
 
         dask.compute(*dask_list, num_workers=self._num_workers)
@@ -709,8 +714,8 @@ class MountainSort4:
                 inds_m_m2=np.where(channel_assignments_m==m2)[0]
                 if len(inds_m_m2)>0:
                     neighborhood_sorters[m2].addAssignedEventTimes(times_m[inds_m_m2])
-        for m in range(M):
-            tmp_dask = dask.delayed(run_phase2_sort(neighborhood_sorters[m]))
+        for neighborhood_sorter in neighborhood_sorters:
+            tmp_dask = dask.delayed(run_phase2_sort)(neighborhood_sorter)
             dask_list.append(tmp_dask)
         dask.compute(*dask_list, num_workers=self._num_workers)
 
