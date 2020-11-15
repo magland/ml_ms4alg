@@ -30,7 +30,7 @@ setuptools.setup(
     	'dask',
         'pybind11',
         'isosplit5',
-        'numpy',
+        'numpy>=1.19.4',
         'mountainlab_pytools',
         'h5py',
         'sklearn',
