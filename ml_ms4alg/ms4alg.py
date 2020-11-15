@@ -646,7 +646,9 @@ class MountainSort4:
     def setTemporaryDirectory(self,tempdir):
         self._temporary_directory=tempdir
     def eventTimesLabelsChannels(self):
-        return (self._event_times, self._event_labels, self._event_labels)
+        # ckbn
+        # return (self._event_times, self._event_labels, self._event_labels)
+        return (self._event_times, self._event_labels, self._event_channels)
     def sort(self):
 
         if not self._temporary_directory:
