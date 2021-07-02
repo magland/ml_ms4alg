@@ -26,7 +26,10 @@ def mountainsort4(*,recording,detect_sign,clip_size=50,adjacency_radius=-1,detec
     detect_threshold=detect_threshold,
     verbose=verbose
   )
-  tmpdir = tempfile.mkdtemp(dir=os.environ.get('TEMPDIR','/tmp'))
+  dir = os.environ.get('TEMPDIR')
+  if dir is None:
+    dir = tempfile.gettempdir()
+  tmpdir = tempfile.mkdtemp(dir)
   MS4.setNumWorkers(num_workers)
   if verbose:
     print('Using tmpdir: '+tmpdir)
