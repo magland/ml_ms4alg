@@ -405,10 +405,14 @@ class _NeighborhoodSorter:
 
         ## It is possible that a small number of events are duplicates (not exactly sure why)
         ## Let's eliminate those
-        if len(times)!=len(np.unique(times)):
+
+        # TEST: check for times with intervals < detection interval
+        invalid = np.where(np.diff(times) < detect_interval)[0]
+        if len(invalid) != 0:
             if self._sorting_opts['verbose']:
-                print('WARNING: found {} of {} duplicate events for channel {} in {}'.format(len(times)-len(np.unique(times)),len(times),self._central_channel+1,mode))
-            times=np.unique(times)
+                #print('WARNING: found {} of {} duplicate events for channel {} in {}'.format(len(times)-len(np.unique(times)),len(times),self._central_channel+1,mode))
+                print('WARNING: found {} of {} events within detection interval for channel {} in {}'.format(len(invalid),len(times),self._central_channel+1,mode))
+            times = np.delete(times, invalid)
         else:
             if mode=='phase2':
                 if self._sorting_opts['verbose']:
