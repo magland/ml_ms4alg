@@ -67,11 +67,13 @@ def get_channel_neighborhood(m,Geom,*,adjacency_radius):
     inds=np.sort(inds)
     return inds.ravel()
 
-def subsample_array(X,max_num):
+def subsample_array(X,max_num,seed=0):
     if X.size==0:
         return X
     if max_num>=len(X):
         return X
+    if seed is not None:
+        np.random.seed(seed)
     inds=np.random.choice(len(X), max_num, replace=False)
     return X[inds]
 
@@ -133,8 +135,10 @@ def remove_zero_features(X):
     features_to_use=np.where(maxvals>0)[0]
     return X[features_to_use,:]
 
-def cluster(features,*,npca):
+def cluster(features,*,npca,seed=0):
     num_events_for_pca=np.minimum(features.shape[1],1000)
+    if seed is not None:
+        np.random.seed(seed)
     subsample_inds=np.random.choice(features.shape[1], num_events_for_pca, replace=False)
     u,s,vt=np.linalg.svd(features[:,subsample_inds])
     features2=(u.transpose())[0:npca,:]@features
