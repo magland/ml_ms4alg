@@ -465,7 +465,6 @@ class _NeighborhoodSorter:
                 invalid = np.where(np.diff(unit_times) < detect_interval)[0]
                 if len(invalid) != 0:
                     if self._sorting_opts['verbose']:
-                        #print('WARNING: found {} of {} duplicate events for channel {} in {}'.format(len(times)-len(np.unique(times)),len(times),self._central_channel+1,mode))
                         print('WARNING: found {} of {} events within detection interval for cluster {}; deleting invalid events'.format(len(invalid),len(times),label))
                     times = np.delete(times, unit_spike_ind[invalid])
                     labels = np.delete(labels, unit_spike_ind[invalid])
